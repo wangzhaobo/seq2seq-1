@@ -1,0 +1,6 @@
+*.pyc
+*.csv
+*.npy
+*.npz
+
+models/
