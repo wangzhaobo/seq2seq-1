@@ -1,5 +1,5 @@
 # seq2seq
-Generic encoder-decoder RNN implemented in Theano. Based on the original 2014 paper by Cho *et al*. The code is made to be readily extendable without abstracting away too much of Theano's functionality.
+Generic encoder-decoder RNN implemented in Theano. Based on [the original 2014 paper](http://arxiv.org/abs/1406.1078) by Cho *et al*. The code is made to be readily extendable without abstracting away too much of Theano's functionality.
 
 Modules (e.g. a GRU or LSTM) can be defined in the `initModules()` function in `model.py`:
 ```python
