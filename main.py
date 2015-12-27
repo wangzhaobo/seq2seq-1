@@ -6,7 +6,7 @@ import random
 import data
 from copy import deepcopy
 from datetime import datetime
-import model
+from model import Model
 from constants import index2alpha, alpha2index
 import util
 
@@ -32,7 +32,7 @@ def train_with_sgd(m, learning_rate=0.005, evaluate_loss_after=1):
             print ""
             print "[%s: Loss after %d examples = %f]" % (time, num_examples_seen, loss)
             save_path = sys.argv[-1] + "-" + time + "-" + str(loss)[:5]
-            model.save_model(m, save_path)
+            Model.save(m, save_path)
 
             for r in xrange(5):
                 i = random.randint(0, len(test_x) - 1)
@@ -51,10 +51,17 @@ def train_with_sgd(m, learning_rate=0.005, evaluate_loss_after=1):
                 sys.stdout.flush()
 
         # For each training example...
+        ecount = 0
         for x, y in zip(train_x, train_y):
-            m.sgd_step(x, y, learning_rate)
+            m.SGD(x, y, learning_rate)
             num_examples_seen += 1
+            ecount += 1
+            if ecount % 1000 == 0:
+                print ".",
+                sys.stdout.flush()
+        print ""
+            
 
-m = model.Model(len(index2word), HIDDEN_SIZE, len(index2word))
+m = Model(len(index2word), HIDDEN_SIZE, len(index2word))
 train_with_sgd(m)
 

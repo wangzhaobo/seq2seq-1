@@ -44,8 +44,9 @@ def divide(a, b, ratio):
     print "[Took %d milliseconds]" % (util.now() - start_time)
     return a_1, a_2, b_1, b_2
 
-ds = Dataset("kjv.dat")
+ds = Dataset("bible.dat")
 pairs = ds.load("pairs") 
+pairs = pairs
 data_x, data_y = pairs[:, 0], pairs[:, 1]
 data_x, data_y = shuffle(data_x, data_y)
 

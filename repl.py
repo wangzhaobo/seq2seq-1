@@ -1,7 +1,7 @@
 import util
 from constants import *
 import sys
-import model
+from model import Model
 import data
 import glob
 import os
@@ -9,10 +9,10 @@ import nltk
 
 filestr = sys.argv[-1]
 
-if filestr == "repl.py":
+if filestr == "load":
     filestr = max(glob.iglob("models/*.npz"), key = os.path.getmtime)
 
-m = model.load_model(filestr)
+m = Model.load(filestr)
 
 def interactiveInput(model):
     inp = ""

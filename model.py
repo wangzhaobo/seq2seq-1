@@ -39,8 +39,8 @@ class Model:
         #encoder loop
         s_e, updates = theano.scan(
             encoder.step,
-            sequences=x_e,
-            outputs_info=[dict(initial=T.zeros(self.hiddenSize))])
+            sequences = x_e,
+            outputs_info = T.zeros(self.hiddenSize))
 
         vector_rep = s_e[-1]
 
@@ -72,14 +72,13 @@ class Model:
         self.ce_error = theano.function([x_e, y], cost)
 
 
-        learning_rate = T.scalar('learning_rate')
+        lr = T.scalar('learning rate')
 
-        self.sgd_step = theano.function(
-            [x_e, y, learning_rate],
-            [], 
-            updates = ffout.getUpdates(cost, learning_rate) + 
-                      decoder.getUpdates(cost, learning_rate) + 
-                      encoder.getUpdates(cost, learning_rate))
+        updates = ffout.getUpdates(cost, lr) + decoder.getUpdates(cost, lr) + encoder.getUpdates(cost, lr)
+
+        self.SGD = theano.function(
+            [x_e, y, lr],
+            updates = updates)
 
     def calculate_total_loss(self, test_x, test_y):
         return np.sum([self.ce_error(x_e, y) for x_e, y in zip(test_x, test_y)])
@@ -88,30 +87,32 @@ class Model:
         num_words = np.sum([len(y) for y in test_y])
         return self.calculate_total_loss(test_x, test_y)/float(num_words)
 
-def save_model(model, filestr):
-    print "[Saving model to %s...]" % filestr
+    @staticmethod
+    def save(model, filestr):
+        print "[Saving model to %s...]" % filestr
 
-    modules = {name: model.modules[name].getParameters() for name in model.modules}
-    sizes = [model.inputSize, model.hiddenSize, model.outputSize]
+        modules = {name: model.modules[name].getParameters() for name in model.modules}
+        sizes = [model.inputSize, model.hiddenSize, model.outputSize]
 
-    np.savez("models/" + filestr, sizes = sizes, **modules)
+        np.savez("models/" + filestr, sizes = sizes, **modules)
 
-def load_model(filestr):
-    print "[Loading model from %s...]" % filestr
-    f = np.load(filestr)
-    module_values = {name: f[name] for name in f.files}
-    sizes = module_values.pop("sizes")
+    @staticmethod
+    def load(filestr):
+        print "[Loading model from %s...]" % filestr
+        f = np.load(filestr)
+        module_values = {name: f[name] for name in f.files}
+        sizes = module_values.pop("sizes")
 
-    #reconstructing modules
+        #reconstructing modules
 
-    modules = {}
-    for name in module_values:
-        moduleType = module_values[name][-1]
-        if moduleType == "GRU":
-            modules[name] = layers.GRU(*module_values[name])
-        elif moduleType == "FF":
-            modules[name] = layers.FF(*module_values[name])
+        modules = {}
+        for name in module_values:
+            moduleType = module_values[name][-1]
+            if moduleType == "GRU":
+                modules[name] = layers.GRU(*module_values[name])
+            elif moduleType == "FF":
+                modules[name] = layers.FF(*module_values[name])
 
-    m = Model(*sizes, modules = modules) 
+        m = Model(*sizes, modules = modules) 
 
-    return m
+        return m
